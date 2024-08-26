@@ -37,8 +37,8 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
 
       mapInstance.flyTo({
         center: [lon, lat],
-        zoom: 3,
-        speed: 0.5, // Adjust speed for smoothness
+        zoom: (scoutLocation) ? 17 : 3,
+        speed: (scoutLocation) ? 2 : 0.5, // Adjust speed for smoothness
         curve: 0.8, // Optional: Adjust the curvature of the flight path
         easing: (t) => 1 - Math.pow(1 - t, 5), // Optional: Customize the easing function
         offset: [0, -100]
