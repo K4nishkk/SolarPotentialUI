@@ -18,12 +18,23 @@ const RotatingGlobeMap = () => {
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/outdoors-v12',
       projection: 'globe',
-      zoom: 1.5
+      zoom: 1.5,
+      center: [Math.random() * 360 - 180, Math.random() * 180 - 90],
+      scrollZoom: false,
+      dragPan: false
     });
 
     (async () => {
       const coordinates = await getCoordinatesFromIP();
-      mapInstance.setCenter([coordinates.lon, coordinates.lat])
+
+      mapInstance.flyTo({
+        center: [coordinates.lon, coordinates.lat],
+        zoom: 5,
+        speed: 1, // Adjust speed for smoothness
+        curve: 0.5, // Optional: Adjust the curvature of the flight path
+        easing: (t) => 1 - Math.pow(1 - t, 3)// Optional: Customize the easing function
+      });
+
       const address = await getAddressFromCoordinates({lon: coordinates.lon, lat: coordinates.lat})
       setAddress(address);
     })();
