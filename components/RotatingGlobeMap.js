@@ -17,6 +17,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
       style: 'mapbox://styles/mapbox/outdoors-v12',
       projection: 'globe',
       zoom: 0.1,
+	  pitch: 38,
       scrollZoom: false,
       dragPan: false,
     });
@@ -52,6 +53,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
 		if (scoutLocation) {
 			mapInstance.scrollZoom.enable();
 			mapInstance.dragPan.enable();
+			mapInstance.setPitch(0)
 			mapInstance.setStyle("mapbox://styles/mapbox/satellite-streets-v12")
 			mapInstance.flyTo({
 			  center: [lon, lat],
@@ -65,6 +67,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
 		else {
 			mapInstance.scrollZoom.disable();
 			mapInstance.dragPan.disable();
+			mapInstance.setPitch(38);
 			mapInstance.setStyle("mapbox://styles/mapbox/outdoors-v12")
 			mapInstance.flyTo({
 			  center: [lon, lat],
