@@ -4,7 +4,8 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { getCoordinatesFromIP } from '@utils/Location';
+import { getCoordinatesFromIP, getCoordinatesFromAddress, getAddressFromCoordinates } from '@utils/Location';
+import LocationData from './LocationData';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
@@ -21,7 +22,6 @@ const RotatingGlobeMap = () => {
 
     (async () => {
       const coordinates = await getCoordinatesFromIP();
-      console.log(coordinates)
       mapInstance.setCenter([coordinates.lon, coordinates.lat])
     })();
 
@@ -38,6 +38,7 @@ const RotatingGlobeMap = () => {
         ref={mapContainerRef}
         style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '100%' }}
       />
+      <LocationData />
     </div>
   );
 };

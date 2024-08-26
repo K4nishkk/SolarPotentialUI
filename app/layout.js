@@ -1,3 +1,5 @@
+import './global.css'
+
 export const metadata = {
   title: "Solar Potential App",
   description: "Major Project",
