@@ -1,8 +1,8 @@
-import RotatingGlobeMap from "@/components/RotatingGlobeMap";
+import LocationForm from "@components/LocationForm";
 
 const Home = async () => {
   return (
-      <RotatingGlobeMap />
+      <LocationForm />
   );
 };
 
