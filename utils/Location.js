@@ -14,7 +14,6 @@ export async function getCoordinatesFromAddress(address) {
 
     const response = await fetch(url)
     const data = await response.json();
-    console.log(data);
     return {lat: data.features[0].geometry.coordinates[1], lon: data.features[0].geometry.coordinates[0]}
 }
 
@@ -29,5 +28,5 @@ export async function getAddressFromCoordinates(coordinates) {
 
     const response = await fetch(url)
     const data = await response.json();
-    console.log(data);
+    return data.features[0].properties.formatted;
 }

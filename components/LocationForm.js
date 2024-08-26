@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import "./LocationData.css"
+import "./LocationForm.css"
 
-const LocationData = () => {
+const LocationForm = ({ address }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
@@ -26,7 +26,7 @@ const LocationData = () => {
                 <div className="card">
                     <div className="card-info">
                         <div className="card-title">Current Address</div>
-                        <div className="card-subtitle">UCHC Sector - 45, Sukhna Path, Sector 45, Chandigarh - 160047, CH, India</div>
+                        <div className="card-subtitle">{address}</div>
                     </div>
                 </div>
             </div>
@@ -34,4 +34,4 @@ const LocationData = () => {
     )
 }
 
-export default LocationData
+export default LocationForm
