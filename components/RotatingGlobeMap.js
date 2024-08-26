@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-const RotatingGlobeMap = ({ lat, lon }) => {
+const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
@@ -44,6 +44,39 @@ const RotatingGlobeMap = ({ lat, lon }) => {
       });
     }
   }, [lat, lon]);
+  
+  useEffect(() => {
+    if (lat !== null && lon !== null && mapInstanceRef.current) {
+      const mapInstance = mapInstanceRef.current;
+
+		if (scoutLocation) {
+			mapInstance.scrollZoom.enable();
+			mapInstance.dragPan.enable();
+			mapInstance.setStyle("mapbox://styles/mapbox/satellite-streets-v12")
+			mapInstance.flyTo({
+			  center: [lon, lat],
+			  zoom: 17,
+			  speed: 2, // Adjust speed for smoothness
+			  curve: 0.8, // Optional: Adjust the curvature of the flight path
+			  easing: (t) => 1 - Math.pow(1 - t, 5), // Optional: Customize the easing function
+			  offset: [0, -100]
+			});
+		}
+		else {
+			mapInstance.scrollZoom.disable();
+			mapInstance.dragPan.disable();
+			mapInstance.setStyle("mapbox://styles/mapbox/outdoors-v12")
+			mapInstance.flyTo({
+			  center: [lon, lat],
+			  zoom: 3,
+			  speed: 2, // Adjust speed for smoothness
+			  curve: 0.8, // Optional: Adjust the curvature of the flight path
+			  easing: (t) => 1 - Math.pow(1 - t, 5), // Optional: Customize the easing function
+			  offset: [0, -100]
+			});
+		}
+    }
+  }, [scoutLocation]);
 
   return (
     <div>

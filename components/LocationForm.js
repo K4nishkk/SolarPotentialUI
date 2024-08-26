@@ -17,6 +17,8 @@ const LocationForm = () => {
     const [addressInput, setAddressInput] = useState("");
     const [addressOptions, setAddressOptions] = useState([]);
 
+    const [scoutLocation, setScoutLocation] = useState(false);
+
     useEffect(() => {
         (async () => {
             const coords = await getCoordinatesFromIP();
@@ -90,11 +92,14 @@ const LocationForm = () => {
                         <div className="card-info">
                             <div className="card-title">Current Address</div>
                             <div className="card-subtitle">{address}</div>
+                            <button className='addressButton' onClick={() => setScoutLocation(!scoutLocation)}>
+                                {(scoutLocation) ? "Disable Scouting" : "Enable Scouting"}
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <RotatingGlobeMap lat={latitude} lon={longitude} />
+            <RotatingGlobeMap lat={latitude} lon={longitude} scoutLocation={scoutLocation}/>
         </>
     )
 }
