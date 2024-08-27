@@ -23,7 +23,9 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
       pitchWithRotate: false,
       dragRotate: false,
       touchPitch: false,
-      touchZoomRotate: false
+      touchZoomRotate: false,
+      doubleClickZoom: false,
+      boxZoom: false
     });
 
     mapInstanceRef.current = mapInstance;
