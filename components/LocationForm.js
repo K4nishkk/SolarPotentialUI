@@ -21,29 +21,42 @@ const LocationForm = () => {
     const [showMarker, setShowMarker] = useState(true);
 
     useEffect(() => {
-        (async () => {
+        const withTimeout = (promise, timeoutMs) => {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+                )
+            ]);
+        };
+
+        const fetchData = async () => {
+            // Fetch coordinates and address from IP
+            const ipCoords = await getCoordinatesFromIP();
+            let lat = ipCoords.lat;
+            let lon = ipCoords.lon;
+    
+            // Check if geolocation is available
             if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    setLatitude(lat);
-                    setLongitude(lon);
-    
-                    const address = await getAddressFromCoordinates({ lat, lon });
-                    setAddress(address);
-                });
+                try {
+                    const position = await withTimeout(new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject);
+                    }), 3000);
+                    lat = position.coords.latitude;
+                    lon = position.coords.longitude;
+                }
+                catch (error) {
+                    console.error("Geolocation error:", error);
+                }
             }
-            else {
-                const coords = await getCoordinatesFromIP();
-                const lat = coords.lat;
-                const lon = coords.lon;
-                setLatitude(lat);
-                setLongitude(lon);
+
+            const address = await getAddressFromCoordinates({ lat, lon });
+            setLatitude(lat);
+            setLongitude(lon);
+            setAddress(address);
+        };
     
-                const address = await getAddressFromCoordinates({ lat, lon });
-                setAddress(address);
-            }
-        })();
+        fetchData();
     }, []);
     
 
