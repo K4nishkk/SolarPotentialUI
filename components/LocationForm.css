@@ -167,13 +167,17 @@
     height: 50px;
 }
 
-.scoutingOption:hover {
+.scoutingOption:enabled:hover {
     background: rgb(2, 0, 36);
     background: linear-gradient(90deg, rgba(30, 144, 255, 1) 0%, rgba(0, 212, 255, 1) 100%);
 }
 
-.scoutingOption:active {
+.scoutingOption:enabled:active {
     transform: translate(0em, 0.2em);
+}
+
+.scoutingOption:disabled {
+    background-color: rgb(108, 173, 237);;
 }
 
 .OptionsContainerHidden {

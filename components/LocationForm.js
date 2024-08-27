@@ -19,6 +19,7 @@ const LocationForm = () => {
 
     const [scoutLocation, setScoutLocation] = useState(false);
     const [showMarker, setShowMarker] = useState(true);
+    const [drawMode, setDrawMode] = useState('static');
 
     useEffect(() => {
         const withTimeout = (promise, timeoutMs) => {
@@ -124,15 +125,15 @@ const LocationForm = () => {
 
                     {scoutLocation && (
                         <div className='scoutingOptionsContainer'>
-                            <button className='scoutingOption'
-                                onClick={() => {
-                                    setShowMarker(!showMarker)
-                                }}
-                            >
+                            <button className='scoutingOption' onClick={() => setShowMarker(!showMarker)}>
                                 {showMarker ? "Hide Marker" : "Show Marker"}
                             </button>
-                            <button className='scoutingOption'>Draw Border</button>
-                            <button className='scoutingOption'>Fill Area</button>
+                            <button className='scoutingOption' onClick={() => setDrawMode('draw_polygon')} disabled={drawMode === 'draw_polygon'}>
+                                Draw Border
+                            </button>
+                            <button className='scoutingOption' onClick={() => setDrawMode('delete')} disabled={drawMode !== 'draw_polygon'}>
+                                Reset
+                            </button>
                         </div>
                     )}
 
@@ -153,10 +154,12 @@ const LocationForm = () => {
 
                 </div>
             </div>
-            <RotatingGlobeMap lat={latitude}
+            <RotatingGlobeMap
+                lat={latitude}
                 lon={longitude}
                 scoutLocation={scoutLocation}
                 showMarker={showMarker}
+                drawMode={drawMode}
             />
         </>
     )

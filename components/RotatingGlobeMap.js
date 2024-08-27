@@ -3,13 +3,17 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import * as turf from "@turf/turf";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker }) => {
+const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const markerRef = useRef(null); // Ref to store the marker instance
+  const markerRef = useRef(null);
+  const mapDrawRef = useRef(null);
 
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
@@ -34,6 +38,26 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker }) => {
 
     mapInstance.on('style.load', () => {
       mapInstance.setFog({});
+
+      mapInstance.addSource('polygon-fill-source', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+
+      // Add the fill layer
+      mapInstance.addLayer({
+        id: 'polygon-fill',
+        type: 'fill',
+        source: 'polygon-fill-source',
+        layout: {},
+        paint: {
+          'fill-color': '#088',
+          'fill-opacity': 0.5
+        }
+      });
     });
 
     return () => mapInstance.remove();
@@ -68,7 +92,37 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker }) => {
     if (lat !== null && lon !== null && mapInstanceRef.current) {
       const mapInstance = mapInstanceRef.current;
 
+      function updateArea(e) {
+        const data = mapDrawRef.current.getAll();
+        
+        if (e.type === 'draw.create') {
+          console.log('Polygon created:', data);
+          mapInstance.getSource('polygon-fill-source').setData(data);
+        }
+        else if (e.type === 'draw.update') {
+          console.log('Polygon updated:', data);
+        }
+        else if (e.type === 'draw.delete') {
+          console.log('Polygon deleted:', data);
+        }
+      
+        if (data.features.length === 0 && e.type !== 'draw.delete') {
+          alert('Click the map to draw a polygon.');
+        }
+      }
+
       if (scoutLocation) {
+        const draw = new MapboxDraw({
+          displayControlsDefault: false,
+        });
+        mapDrawRef.current = draw;
+
+        mapInstanceRef.current.addControl(draw);
+
+        mapInstanceRef.current.on('draw.create', updateArea);
+        mapInstanceRef.current.on('draw.delete', updateArea);
+        mapInstanceRef.current.on('draw.update', updateArea);
+
         mapInstance.scrollZoom.enable();
         mapInstance.touchZoomRotate.enable();
         mapInstance.dragPan.enable();
@@ -85,7 +139,15 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker }) => {
           easing: (t) => 1 - Math.pow(1 - t, 5), // Optional: Customize the easing function
           offset: [0, -100]
         });
-      } else {
+      }
+      else {
+        if (mapDrawRef.current && mapInstance) {
+          mapInstance.off('draw.create', updateArea);
+          mapInstance.off('draw.delete', updateArea);
+          mapInstance.off('draw.update', updateArea);
+          mapInstance.removeControl(mapDrawRef.current);
+        }
+
         mapInstance.scrollZoom.disable();
         mapInstance.touchZoomRotate.disable();
         mapInstance.dragPan.disable();
@@ -108,10 +170,30 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker }) => {
   }, [scoutLocation]);
 
   useEffect(() => {
+    if (drawMode === 'draw_polygon') {
+      mapDrawRef.current.changeMode('draw_polygon');
+    }
+    else if (drawMode === 'delete') {
+      const selectedFeatures = mapDrawRef.current.getSelectedIds();
+
+      if (selectedFeatures.length > 0) {
+        mapDrawRef.current.delete(selectedFeatures);
+        mapInstanceRef.current.getSource('polygon-fill-source').setData({
+          type: 'FeatureCollection',
+          features: []
+        })
+      }
+      else {
+        alert('No features selected to delete.');
+      }
+    }
+  }, [drawMode])
+
+  useEffect(() => {
     if (markerRef.current) {
       (showMarker) ?
         markerRef.current.getElement().style.visibility = "visible"
-      :
+        :
         markerRef.current.getElement().style.visibility = "hidden"
     }
   }, [showMarker])
