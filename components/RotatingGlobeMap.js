@@ -17,9 +17,13 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
       style: 'mapbox://styles/mapbox/outdoors-v12',
       projection: 'globe',
       zoom: 0.1,
-	  pitch: 38,
+	    pitch: 38,
       scrollZoom: false,
       dragPan: false,
+      pitchWithRotate: false,
+      dragRotate: false,
+      touchPitch: false,
+      touchZoomRotate: false
     });
 
     mapInstanceRef.current = mapInstance;

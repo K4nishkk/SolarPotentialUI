@@ -22,7 +22,7 @@
     width: 400px;
     justify-content: space-between;
     height: 100px;
-    z-index: 1;
+    z-index: 10;;
 }
 
 .addressInput {
@@ -102,7 +102,7 @@
     width: 400px;
     height: 254px;
     background: rgba(251, 251, 251, 0.8);
-    z-index: 1;
+    z-index: 10;;
 }
 
 .card-info {
