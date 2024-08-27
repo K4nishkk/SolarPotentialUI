@@ -18,6 +18,7 @@ const LocationForm = () => {
     const [addressOptions, setAddressOptions] = useState([]);
 
     const [scoutLocation, setScoutLocation] = useState(false);
+    const [showMarker, setShowMarker] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -31,7 +32,8 @@ const LocationForm = () => {
                     const address = await getAddressFromCoordinates({ lat, lon });
                     setAddress(address);
                 });
-            } else {
+            }
+            else {
                 const coords = await getCoordinatesFromIP();
                 const lat = coords.lat;
                 const lon = coords.lon;
@@ -74,6 +76,7 @@ const LocationForm = () => {
     return (
         <>
             <div className='outerbox'>
+
                 <div className='innerbox'>
                     <form className='addressForm' onSubmit={(event) => {
                         event.preventDefault();
@@ -103,19 +106,45 @@ const LocationForm = () => {
                         >Locate</button>
                     </form>
                 </div>
+
                 <div className='innerbox'>
-                    <div className="card">
+
+                    {scoutLocation && (
+                        <div className='scoutingOptionsContainer'>
+                            <button className='scoutingOption'
+                                onClick={() => {
+                                    setShowMarker(!showMarker)
+                                }}
+                            >
+                                {showMarker ? "Hide Marker" : "Show Marker"}
+                            </button>
+                            <button className='scoutingOption'>Draw Border</button>
+                            <button className='scoutingOption'>Fill Area</button>
+                        </div>
+                    )}
+
+                    <div className={scoutLocation ? "cardShorten" : "card"}>
                         <div className="card-info">
                             <div className="card-title">Current Address</div>
                             <div className="card-subtitle">{address}</div>
-                            <button className='addressButton' onClick={() => setScoutLocation(!scoutLocation)}>
+                            <button className='addressButton' onClick={() => {
+                                setScoutLocation(!scoutLocation)
+                                if (scoutLocation) {
+                                    setShowMarker(true)
+                                }
+                            }}>
                                 {(scoutLocation) ? "Disable Scouting" : "Enable Scouting"}
                             </button>
                         </div>
                     </div>
+
                 </div>
             </div>
-            <RotatingGlobeMap lat={latitude} lon={longitude} scoutLocation={scoutLocation}/>
+            <RotatingGlobeMap lat={latitude}
+                lon={longitude}
+                scoutLocation={scoutLocation}
+                showMarker={showMarker}
+            />
         </>
     )
 }
