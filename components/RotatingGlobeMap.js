@@ -184,7 +184,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
         })
       }
       else {
-        alert('No features selected to delete.');
+        alert('No area selected to delete.');
       }
     }
   }, [drawMode])
