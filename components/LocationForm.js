@@ -21,13 +21,29 @@ const LocationForm = () => {
 
     useEffect(() => {
         (async () => {
-            const coords = await getCoordinatesFromIP();
-            const address = await getAddressFromCoordinates(coords);
-            setLatitude(coords.lat);
-            setLongitude(coords.lon);
-            setAddress(address);
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    setLatitude(lat);
+                    setLongitude(lon);
+    
+                    const address = await getAddressFromCoordinates({ lat, lon });
+                    setAddress(address);
+                });
+            } else {
+                const coords = await getCoordinatesFromIP();
+                const lat = coords.lat;
+                const lon = coords.lon;
+                setLatitude(lat);
+                setLongitude(lon);
+    
+                const address = await getAddressFromCoordinates({ lat, lon });
+                setAddress(address);
+            }
         })();
-    }, [])
+    }, []);
+    
 
     useEffect(() => {
         if (addressInput) {
@@ -71,19 +87,19 @@ const LocationForm = () => {
                             autoComplete='off'
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setIsFocused(false)}
-                            onChange={(event) => {setAddressInput(event.target.value)}}
+                            onChange={(event) => { setAddressInput(event.target.value) }}
                             value={addressInput}
                             ref={addressInputRef}
                         />
                         <datalist id="address">
                             {addressOptions.map((val, index) => {
                                 return (
-                                    <option value={val} key={index}/>
+                                    <option value={val} key={index} />
                                 );
                             })}
                         </datalist>
                         <button
-                            className={isFocused ? "addressButton" : "addressButtonHidden"} 
+                            className={isFocused ? "addressButton" : "addressButtonHidden"}
                         >Locate</button>
                     </form>
                 </div>
