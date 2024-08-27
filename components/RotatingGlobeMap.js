@@ -25,8 +25,16 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
       touchPitch: false,
       touchZoomRotate: false,
       doubleClickZoom: false,
-      boxZoom: false
+      boxZoom: false, 
+      keyboard: false
     });
+
+    /**
+     * scrollZoom
+     * touchzoomrotate
+     * dragpan
+     * dragrotate
+     */
 
     mapInstanceRef.current = mapInstance;
 
@@ -58,9 +66,13 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
 
 		if (scoutLocation) {
 			mapInstance.scrollZoom.enable();
+      mapInstance.touchZoomRotate.enable();
 			mapInstance.dragPan.enable();
+      mapInstance.dragRotate.enable()
+
 			mapInstance.setPitch(0)
 			mapInstance.setStyle("mapbox://styles/mapbox/satellite-streets-v12")
+      
 			mapInstance.flyTo({
 			  center: [lon, lat],
 			  zoom: 17,
@@ -72,9 +84,13 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation }) => {
 		}
 		else {
 			mapInstance.scrollZoom.disable();
+      mapInstance.touchZoomRotate.disable();
 			mapInstance.dragPan.disable();
+      mapInstance.dragRotate.disable()
+
 			mapInstance.setPitch(38);
 			mapInstance.setStyle("mapbox://styles/mapbox/outdoors-v12")
+
 			mapInstance.flyTo({
 			  center: [lon, lat],
 			  zoom: 3,
