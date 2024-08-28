@@ -65,9 +65,11 @@ const LocationForm = () => {
         if (addressInput) {
             (async () => {
                 const addresses = await getCoordinatesFromAddress(addressInput);
-                setAddressOptions(
-                    addresses.map((value) => value.properties.formatted)
-                )
+
+                if (addresses) {
+                    setAddressOptions(addresses.map((value) => value.address))
+                }
+
                 if (addressOptions.find(option => option === addressInput)) {
                     handleSubmit();
                 }
@@ -79,9 +81,9 @@ const LocationForm = () => {
         console.log("Submitted: " + addressInput)
 
         const newAddress = await getCoordinatesFromAddress(addressInput);
-        setAddress(newAddress[0].properties.formatted);
-        setLatitude(newAddress[0].properties.lat);
-        setLongitude(newAddress[0].properties.lon);
+        setAddress(newAddress[0].address);
+        setLatitude(newAddress[0].lat);
+        setLongitude(newAddress[0].lon);
 
         setAddressInput("")
         addressInputRef.current.blur();

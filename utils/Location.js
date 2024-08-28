@@ -14,8 +14,17 @@ export async function getCoordinatesFromAddress(address) {
 
     const response = await fetch(url)
     const data = await response.json();
-    return data.features;
-    return {lat: data.features[0].geometry.coordinates[1], lon: data.features[0].geometry.coordinates[0]}
+
+    if (data.features.length) {
+        return data.features.map((value) => {
+            return {
+                "address": value.properties.formatted,
+                "lat": value.properties.lat,
+                "lon": value.properties.lon
+            }
+        })
+    }
+    return null
 }
 
 export async function getAddressFromCoordinates(coordinates) {
