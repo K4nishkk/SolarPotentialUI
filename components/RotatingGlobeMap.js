@@ -5,6 +5,8 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { addFillLayer, hideFillLayer, showFillLayer } from '@mapUtil/fillLayer';
+import { setEnableScoutingConfig, setDisableScoutingConfig } from '@mapUtil/scouting';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
@@ -14,6 +16,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
   const markerRef = useRef(null);
   const mapDrawRef = useRef(null);
 
+  // init
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -46,17 +49,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
         }
       });
 
-      // Add the fill layer
-      mapInstance.addLayer({
-        id: 'polygon-fill',
-        type: 'fill',
-        source: 'polygon-fill-source',
-        layout: {},
-        paint: {
-          'fill-color': '#088',
-          'fill-opacity': 0.5
-        }
-      });
+      addFillLayer(mapInstance)
     });
 
     return () => mapInstance.remove();
@@ -92,22 +85,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
       const mapInstance = mapInstanceRef.current;
 
       function createArea() {
-        const data = mapDrawRef.current.getAll();
-        console.log('Polygon created:', data);
-        mapInstance.getSource('polygon-fill-source').setData(data);
-      }
-
-      function updateArea() {
-        const data = mapDrawRef.current.getAll();
-        console.log('Polygon updated:', data);
-      }
-
-      function deleteArea() {
-        const data = mapDrawRef.current.getAll();
-        if (data.features.length === 0) {
-          alert('Click the map to draw a polygon.');
-        }
-        console.log('Polygon deleted:', data);
+        showFillLayer(mapDrawRef, mapInstance)
       }
 
       if (scoutLocation) {
@@ -116,59 +94,24 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
         });
         mapDrawRef.current = draw;
 
-        mapInstanceRef.current.addControl(draw);
-
-        mapInstanceRef.current.on('draw.create', createArea);
-        mapInstanceRef.current.on('draw.update', updateArea);
-        mapInstanceRef.current.on('draw.delete', deleteArea);
-
-        mapInstance.scrollZoom.enable();
-        mapInstance.touchZoomRotate.enable();
-        mapInstance.dragPan.enable();
-        mapInstance.dragRotate.enable()
-
-        mapInstance.setPitch(0);
-        mapInstance.setStyle("mapbox://styles/mapbox/satellite-streets-v12");
-
-        mapInstance.flyTo({
-          center: [lon, lat],
-          zoom: 17,
-          speed: 2, // Adjust speed for smoothness
-          curve: 0.8, // Optional: Adjust the curvature of the flight path
-          easing: (t) => 1 - Math.pow(1 - t, 5), // Optional: Customize the easing function
-          offset: [0, -100]
-        });
+        mapInstance.on('draw.create', createArea);
+        mapInstance.addControl(draw);
+        setEnableScoutingConfig(mapInstance, lat, lon)
       }
       else {
         if (mapDrawRef.current && mapInstance) {
-          mapInstance.off('draw.create', createArea);
-          mapInstance.off('draw.update', updateArea);
-          mapInstance.off('draw.delete', deleteArea);
-          mapInstance.removeControl(mapDrawRef.current);
+            mapInstance.off('draw.create', createArea);
+            mapInstance.removeControl(mapDrawRef.current);
         }
-
-        mapInstance.scrollZoom.disable();
-        mapInstance.touchZoomRotate.disable();
-        mapInstance.dragPan.disable();
-        mapInstance.dragRotate.disable()
-
-        mapInstance.setPitch(38);
-        mapInstance.setStyle("mapbox://styles/mapbox/outdoors-v12");
-
-        mapInstance.flyTo({
-          center: [lon, lat],
-          zoom: 3,
-          speed: 2,
-          curve: 0.8,
-          easing: (t) => 1 - Math.pow(1 - t, 5),
-          offset: [0, -100],
-          bearing: 0
-        });
+        setDisableScoutingConfig(mapInstance, lat, lon)
       }
     }
   }, [scoutLocation]);
 
+  // setting draw mode based on user input
   useEffect(() => {
+    const mapInstance = mapInstanceRef.current;
+
     if (drawMode === 'draw_polygon') {
       mapDrawRef.current.changeMode('draw_polygon');
     }
@@ -177,10 +120,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
 
       if (selectedFeatures.length > 0) {
         mapDrawRef.current.delete(selectedFeatures);
-        mapInstanceRef.current.getSource('polygon-fill-source').setData({
-          type: 'FeatureCollection',
-          features: []
-        })
+        hideFillLayer(mapInstance);
       }
       else {
         alert('No area selected to delete.');
@@ -188,12 +128,11 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
     }
   }, [drawMode])
 
+  // showing/hiding marker
   useEffect(() => {
     if (markerRef.current) {
-      (showMarker) ?
-        markerRef.current.getElement().style.visibility = "visible"
-        :
-        markerRef.current.getElement().style.visibility = "hidden"
+      const marker = markerRef.current.getElement().style;
+      marker.visibility = (showMarker) ? "visible" : "hidden";
     }
   }, [showMarker])
 

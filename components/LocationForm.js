@@ -148,6 +148,9 @@ const LocationForm = () => {
                                 if (scoutLocation) {
                                     setShowMarker(true)
                                 }
+                                else {
+                                    setDrawMode('static')
+                                }
                             }}>
                                 {(scoutLocation) ? "Disable Scouting" : "Enable Scouting"}
                             </button>
