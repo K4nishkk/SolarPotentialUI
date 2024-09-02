@@ -91,23 +91,23 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
     if (lat !== null && lon !== null && mapInstanceRef.current) {
       const mapInstance = mapInstanceRef.current;
 
-      function updateArea(e) {
+      function createArea() {
         const data = mapDrawRef.current.getAll();
-        
-        if (e.type === 'draw.create') {
-          console.log('Polygon created:', data);
-          mapInstance.getSource('polygon-fill-source').setData(data);
-        }
-        else if (e.type === 'draw.update') {
-          console.log('Polygon updated:', data);
-        }
-        else if (e.type === 'draw.delete') {
-          console.log('Polygon deleted:', data);
-        }
-      
-        if (data.features.length === 0 && e.type !== 'draw.delete') {
+        console.log('Polygon created:', data);
+        mapInstance.getSource('polygon-fill-source').setData(data);
+      }
+
+      function updateArea() {
+        const data = mapDrawRef.current.getAll();
+        console.log('Polygon updated:', data);
+      }
+
+      function deleteArea() {
+        const data = mapDrawRef.current.getAll();
+        if (data.features.length === 0) {
           alert('Click the map to draw a polygon.');
         }
+        console.log('Polygon deleted:', data);
       }
 
       if (scoutLocation) {
@@ -118,9 +118,9 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
 
         mapInstanceRef.current.addControl(draw);
 
-        mapInstanceRef.current.on('draw.create', updateArea);
-        mapInstanceRef.current.on('draw.delete', updateArea);
+        mapInstanceRef.current.on('draw.create', createArea);
         mapInstanceRef.current.on('draw.update', updateArea);
+        mapInstanceRef.current.on('draw.delete', deleteArea);
 
         mapInstance.scrollZoom.enable();
         mapInstance.touchZoomRotate.enable();
@@ -141,9 +141,9 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
       }
       else {
         if (mapDrawRef.current && mapInstance) {
-          mapInstance.off('draw.create', updateArea);
-          mapInstance.off('draw.delete', updateArea);
+          mapInstance.off('draw.create', createArea);
           mapInstance.off('draw.update', updateArea);
+          mapInstance.off('draw.delete', deleteArea);
           mapInstance.removeControl(mapDrawRef.current);
         }
 
