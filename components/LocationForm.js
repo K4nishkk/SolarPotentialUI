@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import RotatingGlobeMap from './RotatingGlobeMap'
-import { getCoordinatesFromIP, getCoordinatesFromAddress, getAddressFromCoordinates } from '@utils/Location'
+import { getCoordinatesFromIP, getCoordinatesFromAddress, getAddressFromCoordinates } from '@factory/LocationFactory'
 import "./LocationForm.css"
 
 const LocationForm = () => {
