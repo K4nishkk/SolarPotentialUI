@@ -1,4 +1,4 @@
-export class ScoutingConfig {
+export default class ScoutingConfig {
     static setEnableScoutingConfig(mapInstance, lat, lon) {
 
         mapInstance.scrollZoom.enable();

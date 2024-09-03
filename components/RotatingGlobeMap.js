@@ -5,8 +5,9 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { FillLayer} from '@mapUtil/fillLayer';
-import { ScoutingConfig} from '@mapUtil/scouting';
+import FillLayer from '@mapUtil/fillLayer';
+import ScoutingConfig from '@mapUtil/scouting';
+import * as turf from '@turf/turf'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
@@ -131,10 +132,13 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode, submi
 
   // submitting the selected area coordinates
   useEffect(() => {
-    if (Object.keys(coordinates).length !== 0) {
-      console.log(coordinates)
-      FillLayer.hideFillLayer(mapInstanceRef.current)
-    }
+    if (Object.keys(coordinates).length === 0) return
+
+    // check for self-intersections
+    if (turf.kinks(coordinates.features[0]).features.length) alert("Area should not overlap")
+    else console.log(coordinates)
+    
+    FillLayer.hideFillLayer(mapInstanceRef.current)
   }, [submit])
 
   return (

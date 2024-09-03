@@ -1,4 +1,4 @@
-export class FillLayer {
+export default class FillLayer {
   static addFillLayer(mapInstance) {
     mapInstance.addSource('polygon-fill-source', {
       type: 'geojson',
