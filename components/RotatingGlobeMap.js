@@ -1,23 +1,34 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { addFillLayer, hideFillLayer, showFillLayer } from '@mapUtil/fillLayer';
-import { setEnableScoutingConfig, setDisableScoutingConfig } from '@mapUtil/scouting';
+import { FillLayer} from '@mapUtil/fillLayer';
+import { ScoutingConfig} from '@mapUtil/scouting';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => {
+const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode, submit }) => {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
   const mapDrawRef = useRef(null);
 
+  const [coordinates, setCoordinates] = useState({})
+
   function createArea() {
-    showFillLayer(mapDrawRef, mapInstanceRef)
+    FillLayer.showFillLayer(mapDrawRef, mapInstanceRef)
+
+    // save coordinates and remove mapbox-draw polygon
+    const featureCollection = mapDrawRef.current.getAll();
+    const featureCollectionIds = featureCollection.features.map((feature) => feature.id);
+    setCoordinates(featureCollection)
+
+    if (featureCollectionIds.length > 0) {
+      mapDrawRef.current.delete(featureCollectionIds);
+    }
   }
 
   // init
@@ -45,15 +56,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
     mapInstance.on('style.load', () => {
       mapInstance.setFog({});
 
-      mapInstance.addSource('polygon-fill-source', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: []
-        }
-      });
-
-      addFillLayer(mapInstance)
+      FillLayer.addFillLayer(mapInstance)
       mapInstance.on('draw.create', createArea);
     });
 
@@ -94,14 +97,15 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
           displayControlsDefault: false,
         });
         mapDrawRef.current = draw;
+        
         mapInstance.addControl(draw);
-        setEnableScoutingConfig(mapInstance, lat, lon)
+        ScoutingConfig.setEnableScoutingConfig(mapInstance, lat, lon)
       }
       else {
         if (mapDrawRef.current && mapInstance) {
             mapInstance.removeControl(mapDrawRef.current);
         }
-        setDisableScoutingConfig(mapInstance, lat, lon)
+        ScoutingConfig.setDisableScoutingConfig(mapInstance, lat, lon)
       }
     }
   }, [scoutLocation]);
@@ -111,20 +115,10 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
     const mapInstance = mapInstanceRef.current;
 
     if (drawMode === 'draw_polygon') {
-      mapDrawRef.current.changeMode('draw_polygon');
+      mapDrawRef.current.changeMode('draw_polygon')
+      setCoordinates({});
     }
-    else if (drawMode === 'delete') {
-      const featureCollection = mapDrawRef.current.getAll();
-      const featureCollectionIds = featureCollection.features.map((feature) => feature.id);
-
-      if (featureCollectionIds.length > 0) {
-        mapDrawRef.current.delete(featureCollectionIds);
-        hideFillLayer(mapInstance);
-      }
-      else {
-        alert('No area selected to delete.');
-      }
-    }
+    else if (drawMode === 'delete_polygon') FillLayer.hideFillLayer(mapInstance)
   }, [drawMode])
 
   // showing/hiding marker
@@ -134,6 +128,14 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
       marker.visibility = (showMarker) ? "visible" : "hidden";
     }
   }, [showMarker])
+
+  // submitting the selected area coordinates
+  useEffect(() => {
+    if (Object.keys(coordinates).length !== 0) {
+      console.log(coordinates)
+      FillLayer.hideFillLayer(mapInstanceRef.current)
+    }
+  }, [submit])
 
   return (
     <div>

@@ -20,6 +20,7 @@ const LocationForm = () => {
     const [scoutLocation, setScoutLocation] = useState(false);
     const [showMarker, setShowMarker] = useState(true);
     const [drawMode, setDrawMode] = useState('static');
+    const [submit, setSubmit] = useState(false);
 
     useEffect(() => {
         const withTimeout = (promise, timeoutMs) => {
@@ -133,8 +134,17 @@ const LocationForm = () => {
                             <button className='scoutingOption' onClick={() => setDrawMode('draw_polygon')} disabled={drawMode === 'draw_polygon'}>
                                 Draw Border
                             </button>
-                            <button className='scoutingOption' onClick={() => setDrawMode('delete')} disabled={drawMode !== 'draw_polygon'}>
+                            <button className='scoutingOption' onClick={() => setDrawMode('delete_polygon')} disabled={drawMode !== 'draw_polygon'}>
                                 Reset
+                            </button>
+                            <button className='scoutingOption'
+                                onClick={() => {
+                                    setDrawMode('static')
+                                    setSubmit(!submit)
+                                }}
+                                disabled={drawMode !== 'draw_polygon'}
+                            >
+                                Submit
                             </button>
                         </div>
                     )}
@@ -165,6 +175,7 @@ const LocationForm = () => {
                 scoutLocation={scoutLocation}
                 showMarker={showMarker}
                 drawMode={drawMode}
+                submit={submit}
             />
         </>
     )
