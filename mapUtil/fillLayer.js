@@ -11,9 +11,9 @@ export function addFillLayer(mapInstance) {
       });
 }
 
-export function showFillLayer(mapDrawRef, mapInstance) {
+export function showFillLayer(mapDrawRef, mapInstanceRef) {
     const data = mapDrawRef.current.getAll();
-    mapInstance.getSource('polygon-fill-source').setData(data);
+    mapInstanceRef.current.getSource('polygon-fill-source').setData(data);
     console.log('Polygon created:', data);
 }
 

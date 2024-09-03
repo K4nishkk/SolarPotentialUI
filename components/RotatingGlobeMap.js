@@ -16,6 +16,10 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
   const markerRef = useRef(null);
   const mapDrawRef = useRef(null);
 
+  function createArea() {
+    showFillLayer(mapDrawRef, mapInstanceRef)
+  }
+
   // init
   useEffect(() => {
     const mapInstance = new mapboxgl.Map({
@@ -50,6 +54,7 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
       });
 
       addFillLayer(mapInstance)
+      mapInstance.on('draw.create', createArea);
     });
 
     return () => mapInstance.remove();
@@ -84,23 +89,16 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
     if (lat !== null && lon !== null && mapInstanceRef.current) {
       const mapInstance = mapInstanceRef.current;
 
-      function createArea() {
-        showFillLayer(mapDrawRef, mapInstance)
-      }
-
       if (scoutLocation) {
         const draw = new MapboxDraw({
           displayControlsDefault: false,
         });
         mapDrawRef.current = draw;
-
-        mapInstance.on('draw.create', createArea);
         mapInstance.addControl(draw);
         setEnableScoutingConfig(mapInstance, lat, lon)
       }
       else {
         if (mapDrawRef.current && mapInstance) {
-            mapInstance.off('draw.create', createArea);
             mapInstance.removeControl(mapDrawRef.current);
         }
         setDisableScoutingConfig(mapInstance, lat, lon)
