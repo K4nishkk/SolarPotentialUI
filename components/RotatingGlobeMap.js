@@ -114,10 +114,11 @@ const RotatingGlobeMap = ({ lat, lon, scoutLocation, showMarker, drawMode }) => 
       mapDrawRef.current.changeMode('draw_polygon');
     }
     else if (drawMode === 'delete') {
-      const selectedFeatures = mapDrawRef.current.getSelectedIds();
+      const featureCollection = mapDrawRef.current.getAll();
+      const featureCollectionIds = featureCollection.features.map((feature) => feature.id);
 
-      if (selectedFeatures.length > 0) {
-        mapDrawRef.current.delete(selectedFeatures);
+      if (featureCollectionIds.length > 0) {
+        mapDrawRef.current.delete(featureCollectionIds);
         hideFillLayer(mapInstance);
       }
       else {
