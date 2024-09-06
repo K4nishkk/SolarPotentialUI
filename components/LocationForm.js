@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import RotatingGlobeMap from './RotatingGlobeMap'
-import { getCoordinatesFromIP, getCoordinatesFromAddress, getAddressFromCoordinates } from '@factory/LocationFactory'
+import { LocationFactory } from '@factory/LocationFactory'
 import "./LocationForm.css"
 
 const LocationForm = () => {
@@ -34,7 +34,7 @@ const LocationForm = () => {
 
         const fetchData = async () => {
             // Fetch coordinates and address from IP
-            const ipCoords = await getCoordinatesFromIP();
+            const ipCoords = await LocationFactory.getCoordinatesFromIP();
             let lat = ipCoords.lat;
             let lon = ipCoords.lon;
     
@@ -52,7 +52,7 @@ const LocationForm = () => {
                 }
             }
 
-            const address = await getAddressFromCoordinates({ lat, lon });
+            const address = await LocationFactory.getAddressFromCoordinates({ lat, lon });
             setLatitude(lat);
             setLongitude(lon);
             setAddress(address);
@@ -65,7 +65,7 @@ const LocationForm = () => {
     useEffect(() => {
         if (addressInput) {
             (async () => {
-                const addresses = await getCoordinatesFromAddress(addressInput);
+                const addresses = await LocationFactory.getCoordinatesFromAddress(addressInput);
 
                 if (addresses) {
                     setAddressOptions(addresses.map((value) => value.address))
@@ -81,7 +81,7 @@ const LocationForm = () => {
     const handleSubmit = async () => {
         console.log("Submitted: " + addressInput)
 
-        const newAddress = await getCoordinatesFromAddress(addressInput);
+        const newAddress = await LocationFactory.getCoordinatesFromAddress(addressInput);
         setAddress(newAddress[0].address);
         setLatitude(newAddress[0].lat);
         setLongitude(newAddress[0].lon);
