@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 
-const page = () => {
+const SolarPanels = () => {
     const [titles, setTitles] = useState("");
 
     useEffect(() => {
@@ -25,4 +25,4 @@ const page = () => {
     );
 }
 
-export default page
+export default SolarPanels
