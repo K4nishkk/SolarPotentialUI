@@ -7,7 +7,13 @@ const SolarPanels = () => {
     const [titles, setTitles] = useState("");
 
     useEffect(() => {
-        axios.get('/api/panelUpdate')
+        axios.get('/api/panelUpdate', {
+            headers: {
+                'Cache-Control': 'no-cache',   // Prevents axios from caching
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        })
             .then((response) => { setTitles(JSON.stringify(response.data.documents[0])) })
             .catch((error) => { console.error(error.message) });
     }, []);
