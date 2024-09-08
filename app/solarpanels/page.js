@@ -7,7 +7,7 @@ const SolarPanels = () => {
     const [titles, setTitles] = useState("");
 
     useEffect(() => {
-        axios.get('/api/panelUpdate', {
+        axios.get(`/api/panelUpdate?cb=${Date.now()}`, {
             headers: {
                 'Cache-Control': 'no-cache',   // Prevents axios from caching
                 'Pragma': 'no-cache',

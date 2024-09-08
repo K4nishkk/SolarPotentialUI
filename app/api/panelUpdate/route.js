@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { MongoClient } from "mongodb";
 
 export async function GET() {
