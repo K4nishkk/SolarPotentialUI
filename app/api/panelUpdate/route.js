@@ -9,12 +9,18 @@ export async function GET() {
         const database = client.db('ProductDetailsDB');
         const collection = database.collection('ProductDetails');
 
-        // Retrieve all documents
         const cursor = collection.find({});
-    
-        // Convert the cursor to an array and log the documents
+
         const documents = await cursor.toArray();
-        return new Response(JSON.stringify({ documents }))
+        return new Response(JSON.stringify({ documents }), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Surrogate-Control': 'no-store'
+            }
+        });
     } catch (e) {
         console.error(e);
     } finally {
